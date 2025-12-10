@@ -39,4 +39,16 @@ router.post("/", (req, res) => {
   return res.status(201).json(newBooking);
 });
 
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
+
+  const bookings = readJSON(BOOKINGS_PATH);
+
+  const updated = bookings.filter(b => b.id !== id);
+
+  writeJSON(BOOKINGS_PATH, updated);
+
+  return res.json({ message: "Successfully deleted" });
+});
+
 export default router;
