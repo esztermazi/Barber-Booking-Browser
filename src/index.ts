@@ -1,7 +1,8 @@
+import "tsx/esm";
 import express from "express";
-// import { auth } from "./middleware/auth.js";
-import barbersRoute from "./routes/barbers.js";
-import bookingsRoute from "./routes/bookings.js";
+// import { auth } from "./middleware/auth.ts";
+import barbersRoute from "./routes/barbers.ts";
+import bookingsRoute from "./routes/bookings.ts";
 
 const app = express();
 app.use(express.json());

@@ -1,5 +1,7 @@
+export const BOOKINGS_PATH = "./src/data/bookings.json";
 export const OPENING_HOUR = 7;
 export const CLOSING_HOUR = 20;
+export const BOOKING_INTERVAL = 30;
 
 export const CLOSED_DAYS = [0];
 
