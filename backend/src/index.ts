@@ -1,13 +1,14 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import "tsx/esm";
 import express from "express";
+import cors from "cors";
 // import { auth } from "./middleware/auth.ts";
 import barbersRoute from "./routes/barbers.ts";
 import bookingsRoute from "./routes/bookings.ts";
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 // app.use(auth);    // Re-enable later
 
