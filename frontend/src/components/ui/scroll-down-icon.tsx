@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 
 type ScrollDownIconProps = {
   onClick: () => void;
@@ -21,7 +21,7 @@ export function ScrollDownIcon({ onClick, className }: ScrollDownIconProps) {
         className
       )}
     >
-      <ChevronDown size={28} />
+      <ArrowDown size={28} />
     </Button>
   );
 }

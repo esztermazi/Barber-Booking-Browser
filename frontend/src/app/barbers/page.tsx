@@ -1,18 +1,26 @@
 import { getBarbers } from "@/lib/api/barbers";
 import type { Barber } from "@/types/Barber";
+import { BarberHero } from "@/components/sections/BarberHero";
+import { BarberSchedule } from "@/components/sections/BarberSchedule";
 
 export default async function BarbersPage() {
   const barbers = await getBarbers();
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Barbers</h1>
-
-      <ul className="list-disc pl-6">
+    <div className="w-full">
+      <BarberHero
+        title="Meet Our Barbers"
+        description="Our talented team brings years of expertise, precision, and passion to every cut. Discover the professionals behind the chair."
+        imageUrl="/barber.jpg"
+      />
+      <section
+        id="barbers-schedule"
+        className="max-w-4xl mx-auto px-4 space-y-8 pb-20"
+      >
         {barbers.map((barber: Barber) => (
-          <li key={barber.id}>{barber.name}</li>
+          <BarberSchedule barber={barber} key={barber.id} />
         ))}
-      </ul>
+      </section>
     </div>
   );
 }

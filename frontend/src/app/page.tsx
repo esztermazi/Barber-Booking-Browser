@@ -17,7 +17,7 @@ export default function Home() {
       <div ref={aboutRef}>
         <BarberHero
           title="About Us"
-          description="At BBB Barber Shop, we specialize in delivering high–quality grooming experiences tailored to your style. Our expert team has mastered both modern and classic cuts — ensuring every visit leaves you confident, sharp, and refreshed."
+          description="At B𐤡B  Barber Shop, we specialize in delivering high–quality grooming experiences tailored to your style. Our expert team has mastered both modern and classic cuts — ensuring every visit leaves you confident, sharp, and refreshed."
           imageUrl="/barber-working.jpg"
         />
       </div>
