@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getBookings } from "@/lib/api/bookings";
+import { getBookings, deleteBooking } from "@/lib/api/bookings";
 import type { Booking } from "@/types/Booking";
 
 export default function AppointmentsPage() {
@@ -9,6 +9,7 @@ export default function AppointmentsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function handleSearch() {
     if (!email.trim()) {
@@ -23,10 +24,35 @@ export default function AppointmentsPage() {
       const data = await getBookings(email);
       setBookings(data);
     } catch (err) {
-      setError("Failed to load appointments with error:" + err);
+      setError("Failed to load appointments: " + err);
     }
 
     setLoading(false);
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Are you sure you want to delete this appointment?")) {
+      return;
+    }
+
+    setDeletingId(id);
+    setError("");
+
+    try {
+      const success = await deleteBooking(id);
+
+      if (!success) {
+        setError("Could not delete booking.");
+        return;
+      }
+
+      const updated = await getBookings(email);
+      setBookings(updated);
+    } catch (err) {
+      setError("Failed to delete booking: " + err);
+    }
+
+    setDeletingId(null);
   }
 
   return (
@@ -54,19 +80,29 @@ export default function AppointmentsPage() {
 
       <ul className="mt-4 space-y-2">
         {bookings.map((b) => (
-          <li key={b.id} className="border p-3 rounded">
-            <p>
-              <strong>Barber:</strong> {b.barberId}
-            </p>
-            <p>
-              <strong>Email:</strong> {b.email}
-            </p>
-            <p>
-              <strong>Start:</strong> {new Date(b.start).toLocaleString()}
-            </p>
-            <p>
-              <strong>End:</strong> {new Date(b.end).toLocaleString()}
-            </p>
+          <li key={b.id} className="border p-3 rounded flex justify-between">
+            <div>
+              <p>
+                <strong>Barber:</strong> {b.barberId}
+              </p>
+              <p>
+                <strong>Email:</strong> {b.email}
+              </p>
+              <p>
+                <strong>Start:</strong> {new Date(b.start).toLocaleString()}
+              </p>
+              <p>
+                <strong>End:</strong> {new Date(b.end).toLocaleString()}
+              </p>
+            </div>
+
+            <button
+              onClick={() => handleDelete(b.id)}
+              disabled={deletingId === b.id}
+              className="text-white bg-red-600 px-3 py-1 rounded h-10 self-center"
+            >
+              {deletingId === b.id ? "Deleting..." : "Delete"}
+            </button>
           </li>
         ))}
       </ul>

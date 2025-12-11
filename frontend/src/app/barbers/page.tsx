@@ -9,7 +9,7 @@ export default async function BarbersPage() {
       <h1 className="text-2xl font-bold mb-4">Barbers</h1>
 
       <ul className="list-disc pl-6">
-        {barbers.map((barber) => (
+        {barbers.map((barber: Barber) => (
           <li key={barber.id}>{barber.name}</li>
         ))}
       </ul>

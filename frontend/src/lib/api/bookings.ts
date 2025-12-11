@@ -34,3 +34,15 @@ export async function createBooking(body: {
 
   return res.json();
 }
+
+export async function deleteBooking(id: string) {
+  const res = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/bookings/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to delete booking");
+  }
+
+  return res.json();
+}
