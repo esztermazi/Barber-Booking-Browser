@@ -5,6 +5,7 @@ import { getAvailableSlots, getBarbers } from "@/lib/api/barbers";
 import { createBooking } from "@/lib/api/bookings";
 import type { Barber } from "@/types/Barber";
 import type { BarberSlot } from "@/types/Barber";
+import { toast } from "sonner";
 
 import {
   Select,
@@ -29,8 +30,6 @@ export default function BookPage() {
   const [email, setEmail] = useState("");
 
   const [loadingSlots, setLoadingSlots] = useState(false);
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
 
   useEffect(() => {
     async function load() {
@@ -38,7 +37,7 @@ export default function BookPage() {
         const data = await getBarbers();
         setBarbers(data);
       } catch {
-        setError("Failed to load barbers");
+        toast.error("Failed to load barbers");
       }
     }
     load();
@@ -53,15 +52,17 @@ export default function BookPage() {
       if (!bookingDate || !bookingBarber) return;
 
       setLoadingSlots(true);
-      setError("");
-      setSuccess("");
       setSlots([]);
 
       try {
         const data = await getAvailableSlots(bookingBarber, bookingDate);
         setSlots(data);
+
+        if (data.length === 0) {
+          toast.info("No available slots for this day");
+        }
       } catch {
-        setError("Failed to load slots");
+        toast.error("Failed to load slots");
       } finally {
         setLoadingSlots(false);
       }
@@ -71,7 +72,7 @@ export default function BookPage() {
 
   async function handleBooking() {
     if (!selectedSlot || !email || !barberId || !date) {
-      setError("Please select barber, date, slot, and enter email.");
+      toast.error("Please select barber, date, time slot and enter email");
       return;
     }
 
@@ -83,15 +84,15 @@ export default function BookPage() {
         email,
       });
 
-      setSuccess("Appointment successfully booked!");
-      setError("");
+      toast.success("Appointment successfully booked 💈");
+
       setEmail("");
       setSelectedSlot(null);
       setSlots([]);
       setDate(undefined);
       setBarberId("");
     } catch {
-      setError("Failed to create booking");
+      toast.error("Failed to create booking");
     }
   }
 
@@ -102,9 +103,7 @@ export default function BookPage() {
       </h1>
 
       <div className="text-center">
-        <Label htmlFor="barber" className="block mb-2 font-medium">
-          Choose a Barber
-        </Label>
+        <Label className="block mb-2 font-medium">Choose a Barber</Label>
 
         <div className="flex justify-center">
           <Select
@@ -112,8 +111,6 @@ export default function BookPage() {
             onValueChange={(id) => {
               setBarberId(id);
               setSelectedSlot(null);
-              setSuccess("");
-              setError("");
 
               if (date) {
                 loadSlots(toLocalYMD(date), id);
@@ -147,8 +144,7 @@ export default function BookPage() {
               if (!day) return;
               setDate(day);
               setSelectedSlot(null);
-              setSuccess("");
-              setError("");
+
               if (barberId) {
                 loadSlots(toLocalYMD(day), barberId);
               }
@@ -159,7 +155,6 @@ export default function BookPage() {
       </div>
 
       {loadingSlots && <p className="mt-4 text-center">Loading slots…</p>}
-      {error && <p className="text-red-600 mt-4 text-center">{error}</p>}
 
       {slots.length > 0 && (
         <div className="mt-6">
@@ -197,6 +192,7 @@ export default function BookPage() {
       {selectedSlot && (
         <div className="mt-6 text-center">
           <Label className="block mt-6 mb-2 font-medium">Your Email</Label>
+
           <Input
             type="email"
             value={email}
@@ -210,8 +206,6 @@ export default function BookPage() {
           </Button>
         </div>
       )}
-
-      {success && <p className="text-green-600 mt-4 text-center">{success}</p>}
     </div>
   );
 }

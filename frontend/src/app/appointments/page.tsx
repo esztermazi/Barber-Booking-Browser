@@ -5,10 +5,11 @@ import { Booking } from "@/types/Booking";
 import { Button } from "@/components/ui/button";
 import { useState, useCallback, useMemo } from "react";
 import { getBookings, deleteBooking } from "@/lib/api/bookings";
-
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/ui/data-table";
 import { ScissorsLineDashed, Trash } from "lucide-react";
+import { toast } from "sonner";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -66,7 +67,6 @@ export default function AppointmentsPage() {
   const [email, setEmail] = useState("");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
@@ -82,48 +82,51 @@ export default function AppointmentsPage() {
 
   async function handleSearch() {
     if (!email.trim()) {
-      setError("Email is required");
+      toast.error("Email is required");
       return;
     }
 
     setHasSearched(true);
     setLoading(true);
-    setError("");
 
     try {
       const data = await getBookings(email);
       setBookings(data);
-    } catch (err) {
-      setError("Failed to load appointments: " + err);
-    }
 
-    setLoading(false);
+      if (data.length === 0) {
+        toast.info("No appointments found");
+      }
+    } catch {
+      toast.error("Failed to load appointments");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleDeleteConfirmed() {
     if (!pendingDeleteId) return;
 
     setDeletingId(pendingDeleteId);
-    setError("");
 
     try {
       const success = await deleteBooking(pendingDeleteId);
+
       if (!success) {
-        setError("Could not delete booking.");
-        setDeletingId(null);
-        setPendingDeleteId(null);
+        toast.error("Could not delete booking");
         return;
       }
 
       setBookings((prev) =>
         prev.filter((booking) => booking.id !== pendingDeleteId)
       );
-    } catch (err) {
-      setError("Failed to delete booking: " + err);
-    }
 
-    setDeletingId(null);
-    setPendingDeleteId(null);
+      toast.success("Appointment successfully deleted ✂️");
+    } catch {
+      toast.error("Failed to delete booking");
+    } finally {
+      setDeletingId(null);
+      setPendingDeleteId(null);
+    }
   }
 
   return (
@@ -149,9 +152,6 @@ export default function AppointmentsPage() {
             <ScissorsLineDashed />
           </Button>
         </div>
-
-        {error && <p className="text-red-600">{error}</p>}
-        {loading && <p>Loading...</p>}
       </div>
 
       <div className="mt-6 w-full">
