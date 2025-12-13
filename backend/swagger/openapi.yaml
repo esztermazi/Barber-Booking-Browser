@@ -1,0 +1,250 @@
+openapi: 3.0.3
+
+info:
+  title: Barber Booking Browser API
+  description: Backend API for barber booking and scheduling
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:4000
+    description: Local development server
+
+paths:
+  /:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "BBB Backend API is running"
+
+  /barbers:
+    get:
+      summary: Get all barbers
+      security:
+        - InternalApiKey: []
+      responses:
+        "200":
+          description: List of barbers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Barber"
+              example:
+                - id: "barber-1"
+                  name: "Gedeon Bácsi"
+                  workSchedule:
+                    monday:
+                      start: "09:00"
+                      end: "17:00"
+
+  /barbers/{id}/slots:
+    get:
+      summary: Get available slots for a barber
+      security:
+        - InternalApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the barber
+          schema:
+            type: string
+            example: "barber-1"
+        - name: date
+          in: query
+          required: true
+          description: Date for which to retrieve available slots (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+            example: "2025-01-01"
+      responses:
+        "200":
+          description: Available time slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BarberSlot"
+              example:
+                - start: 1735722000
+                  end: 1735725600
+                - start: 1735725600
+                  end: 1735729200
+        "400":
+          description: Invalid date or barber not found
+
+  /bookings:
+    get:
+      summary: Get bookings
+      security:
+        - InternalApiKey: []
+      parameters:
+        - name: email
+          in: query
+          required: false
+          description: Filter bookings by customer email address
+          schema:
+            type: string
+            format: email
+            example: "test@example.com"
+      responses:
+        "200":
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BookingList"
+              example:
+                - id: "booking-1"
+                  start: 1735722000
+                  end: 1735725600
+                  email: "test@example.com"
+                  barber: "Gedeon Bácsi"
+
+    post:
+      summary: Create a booking
+      security:
+        - InternalApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingCreate"
+            example:
+              barberId: "barber-1"
+              start: 1735722000
+              end: 1735725600
+              email: "test@example.com"
+      responses:
+        "200":
+          description: Booking created
+        "400":
+          description: Validation error
+
+  /bookings/{id}:
+    delete:
+      summary: Delete a booking
+      security:
+        - InternalApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the booking to delete
+          schema:
+            type: string
+            example: "booking-1"
+      responses:
+        "200":
+          description: Booking deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingDelete"
+              example:
+                id: "booking-1"
+        "404":
+          description: Booking not found
+
+components:
+  securitySchemes:
+    InternalApiKey:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: Internal API key required to access protected endpoints
+
+  schemas:
+    Barber:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "barber-1"
+        name:
+          type: string
+          example: "Gedeon Bácsi"
+        workSchedule:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              start:
+                type: string
+                example: "09:00"
+              end:
+                type: string
+                example: "17:00"
+
+    BarberSlot:
+      type: object
+      properties:
+        start:
+          type: number
+          example: 1735722000
+        end:
+          type: number
+          example: 1735725600
+
+    BookingCreate:
+      type: object
+      required:
+        - barberId
+        - start
+        - end
+        - email
+      properties:
+        barberId:
+          type: string
+          example: "barber-1"
+        start:
+          type: number
+          example: 1735722000
+        end:
+          type: number
+          example: 1735725600
+        email:
+          type: string
+          example: "test@example.com"
+
+    BookingList:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "booking-1"
+        start:
+          type: number
+          example: 1735722000
+        end:
+          type: number
+          example: 1735725600
+        email:
+          type: string
+          example: "test@example.com"
+        barber:
+          type: string
+          example: "Gedeon Bácsi"
+
+    BookingDelete:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "booking-1"

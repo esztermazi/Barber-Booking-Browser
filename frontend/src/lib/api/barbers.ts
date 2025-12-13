@@ -1,10 +1,12 @@
 import { Barber } from "@/types/Barber";
-
-const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+import { BACKEND_URL, INTERNAL_API_KEY } from "../config";
 
 export async function getBarbers(): Promise<Barber[]> {
-  const res = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/barbers`, {
+  const res = await fetch(`${BACKEND_URL}/barbers`, {
     cache: "no-store",
+    headers: {
+      "X-API-Key": INTERNAL_API_KEY,
+    },
   });
 
   if (!res.ok) {
@@ -15,9 +17,14 @@ export async function getBarbers(): Promise<Barber[]> {
 }
 
 export async function getAvailableSlots(barberId: string, date: string) {
-  const url = `${NEXT_PUBLIC_BACKEND_URL}/barbers/${barberId}/slots?date=${date}`;
+  const url = `${BACKEND_URL}/barbers/${barberId}/slots?date=${date}`;
 
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(url, {
+    cache: "no-store",
+    headers: {
+      "X-API-Key": INTERNAL_API_KEY,
+    },
+  });
 
   if (!res.ok) throw new Error("Failed to fetch slots");
 
