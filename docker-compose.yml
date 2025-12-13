@@ -1,0 +1,23 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      API_URL: ${API_URL}
+      API_KEY: ${API_KEY}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      BACKEND_URL: http://backend:4000
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+    depends_on:
+      - backend
