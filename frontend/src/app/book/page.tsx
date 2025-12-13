@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { z } from "zod";
+import { toast } from "sonner";
+
 import { getAvailableSlots, getBarbers } from "@/lib/api/barbers";
 import { createBooking } from "@/lib/api/bookings";
-import type { Barber } from "@/types/Barber";
-import type { BarberSlot } from "@/types/Barber";
-import { toast } from "sonner";
+import { toLocalYMD } from "@/lib/utils";
+
+import type { Barber, BarberSlot } from "@/types/Barber";
 
 import {
   Select,
@@ -14,25 +17,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toLocalYMD } from "@/lib/utils";
+
+const emailSchema = z
+  .string()
+  .min(1, "Email is required")
+  .email("Please enter a valid email address");
 
 export default function BookPage() {
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [barberId, setBarberId] = useState("");
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [date, setDate] = useState<Date>();
   const [slots, setSlots] = useState<BarberSlot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<BarberSlot | null>(null);
+
   const [email, setEmail] = useState("");
 
   const [loadingSlots, setLoadingSlots] = useState(false);
 
   useEffect(() => {
-    async function load() {
+    async function loadBarbers() {
       try {
         const data = await getBarbers();
         setBarbers(data);
@@ -40,19 +47,20 @@ export default function BookPage() {
         toast.error("Failed to load barbers");
       }
     }
-    load();
+
+    loadBarbers();
   }, []);
 
   const loadSlots = useCallback(
     async (dateStr?: string, barber?: string) => {
-      const bookingDate =
-        dateStr ?? (date instanceof Date ? toLocalYMD(date) : undefined);
+      const bookingDate = dateStr ?? (date ? toLocalYMD(date) : undefined);
       const bookingBarber = barber ?? barberId;
 
       if (!bookingDate || !bookingBarber) return;
 
       setLoadingSlots(true);
       setSlots([]);
+      setSelectedSlot(null);
 
       try {
         const data = await getAvailableSlots(bookingBarber, bookingDate);
@@ -62,7 +70,7 @@ export default function BookPage() {
           toast.info("No available slots for this day");
         }
       } catch {
-        toast.error("Failed to load slots");
+        toast.error("Failed to load available slots");
       } finally {
         setLoadingSlots(false);
       }
@@ -71,8 +79,16 @@ export default function BookPage() {
   );
 
   async function handleBooking() {
-    if (!selectedSlot || !email || !barberId || !date) {
-      toast.error("Please select barber, date, time slot and enter email");
+    if (!barberId || !date || !selectedSlot) {
+      toast.error("Please select barber, date and time slot");
+      return;
+    }
+
+    const emailValidation = emailSchema.safeParse(email);
+
+    if (!emailValidation.success) {
+      const message = emailValidation.error.issues[0].message;
+      toast.error(message);
       return;
     }
 
@@ -81,7 +97,7 @@ export default function BookPage() {
         barberId,
         start: selectedSlot.start,
         end: selectedSlot.end,
-        email,
+        email: emailValidation.data,
       });
 
       toast.success("Appointment successfully booked 💈");
@@ -110,11 +126,7 @@ export default function BookPage() {
             value={barberId}
             onValueChange={(id) => {
               setBarberId(id);
-              setSelectedSlot(null);
-
-              if (date) {
-                loadSlots(toLocalYMD(date), id);
-              }
+              if (date) loadSlots(toLocalYMD(date), id);
             }}
           >
             <SelectTrigger className="w-64 mb-6">
@@ -143,11 +155,7 @@ export default function BookPage() {
             onSelect={(day) => {
               if (!day) return;
               setDate(day);
-              setSelectedSlot(null);
-
-              if (barberId) {
-                loadSlots(toLocalYMD(day), barberId);
-              }
+              if (barberId) loadSlots(toLocalYMD(day), barberId);
             }}
             className="mb-6"
           />
@@ -170,7 +178,7 @@ export default function BookPage() {
                 <Button
                   key={slot.start}
                   variant={isSelected ? "default" : "outline"}
-                  className="w-full text-sm py-4"
+                  className="w-full py-4 text-sm"
                   onClick={() => setSelectedSlot(slot)}
                 >
                   {new Date(slot.start).toLocaleTimeString([], {
@@ -191,17 +199,20 @@ export default function BookPage() {
 
       {selectedSlot && (
         <div className="mt-6 text-center">
-          <Label className="block mt-6 mb-2 font-medium">Your Email</Label>
+          <Label className="block mb-2 font-medium">Your Email</Label>
 
           <Input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setEmail(value);
+            }}
             placeholder="you@example.com"
-            className="mb-4 w-full"
+            className="w-full"
           />
 
-          <Button onClick={handleBooking} className="bg-[#8B5A2B] w-full">
+          <Button onClick={handleBooking} className="bg-[#8B5A2B] w-full mt-4">
             Schedule Appointment
           </Button>
         </div>

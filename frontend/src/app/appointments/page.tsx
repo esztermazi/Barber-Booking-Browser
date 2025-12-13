@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import z from "zod";
 
 export const appointmentColumns = (
   openDeleteDialog: (id: string) => void,
@@ -63,6 +64,11 @@ export const appointmentColumns = (
   },
 ];
 
+const emailSchema = z
+  .string()
+  .min(1, "Email is required")
+  .email("Please enter a valid email address");
+
 export default function AppointmentsPage() {
   const [email, setEmail] = useState("");
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -81,8 +87,10 @@ export default function AppointmentsPage() {
   );
 
   async function handleSearch() {
-    if (!email.trim()) {
-      toast.error("Email is required");
+    const emailValidation = emailSchema.safeParse(email);
+
+    if (!emailValidation.success) {
+      toast.error(emailValidation.error.issues[0].message);
       return;
     }
 
@@ -90,7 +98,7 @@ export default function AppointmentsPage() {
     setLoading(true);
 
     try {
-      const data = await getBookings(email);
+      const data = await getBookings(emailValidation.data);
       setBookings(data);
 
       if (data.length === 0) {
