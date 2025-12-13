@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/ui/data-table";
 import { ScissorsLineDashed, Trash } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 import {
   AlertDialog,
@@ -139,12 +140,16 @@ export default function AppointmentsPage() {
 
   return (
     <div className="p-6">
-      <div className="max-w-3xl mx-auto text-center">
-        <div className="flex items-center justify-center gap-2">
-          <h1 className="text-4xl font-[Snell_Roundhand,Segoe_Script,'Brush_Script_MT',cursive] mb-4">
-            Cut to the right moment(s)
-          </h1>
-        </div>
+      <motion.div
+        layout
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className={`max-w-3xl mx-auto text-center flex flex-col items-center ${
+          hasSearched ? "pt-6" : "min-h-[70vh] justify-center"
+        }`}
+      >
+        <h1 className="text-4xl font-[Snell_Roundhand,Segoe_Script,'Brush_Script_MT',cursive] mb-4">
+          Cut to the right moment(s)
+        </h1>
 
         <div className="flex gap-2 mb-4 justify-center">
           <Input
@@ -160,10 +165,18 @@ export default function AppointmentsPage() {
             <ScissorsLineDashed />
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       <div className="mt-6 w-full">
-        {bookings.length > 0 && <DataTable columns={columns} data={bookings} />}
+        {bookings.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <DataTable columns={columns} data={bookings} />
+          </motion.div>
+        )}
 
         {hasSearched && bookings.length === 0 && !loading && (
           <p className="text-center mt-4">No appointments found.</p>
