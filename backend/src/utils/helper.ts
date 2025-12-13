@@ -1,4 +1,4 @@
-import { BarberSlotDTO } from "../models/Barber";
+import { BarberSlotDTO } from "../models/Barber.js";
 
 export function generateTimeSlots(
   date: string,

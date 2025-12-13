@@ -1,26 +1,40 @@
 import axios, { AxiosError } from "axios";
-import type { Barber, BarberSlotDTO } from "../models/Barber.ts";
-import type { Booking } from "../models/Booking.ts";
+import type { Barber, BarberSlotDTO } from "../models/Barber.js";
+import type { Booking } from "../models/Booking.js";
 
 import {
   BOOKINGS_PATH,
   CLOSED_DAYS,
   weekdays,
   HOLIDAYS,
-} from "../utils/constants.ts";
+} from "../utils/constants.js";
 
-import { generateTimeSlots, tsToYMD } from "../utils/helper.ts";
-import { readJSON } from "../utils/storage.ts";
-import { isValidDateOnly } from "../utils/validation.ts";
+import { generateTimeSlots, tsToYMD } from "../utils/helper.js";
+import { readJSON } from "../utils/storage.js";
+import { isValidDateOnly } from "../utils/validation.js";
 
 export class BarbersService {
-  private static API_URL = process.env.API_URL!;
-  private static API_KEY = process.env.API_KEY!;
+  private static getApiConfig() {
+    const API_URL = process.env.API_URL;
+    const API_KEY = process.env.API_KEY;
+
+    if (!API_URL) {
+      throw new Error("Missing API_URL environment variable");
+    }
+
+    if (!API_KEY) {
+      throw new Error("Missing API_KEY environment variable");
+    }
+
+    return { API_URL, API_KEY };
+  }
 
   static async fetchAll(): Promise<Barber[]> {
+    const { API_URL, API_KEY } = this.getApiConfig();
+
     try {
-      const response = await axios.get<Barber[]>(this.API_URL, {
-        headers: { "x-api-key": this.API_KEY },
+      const response = await axios.get<Barber[]>(API_URL, {
+        headers: { "x-api-key": API_KEY },
       });
 
       return response.data;
@@ -30,6 +44,7 @@ export class BarbersService {
       throw new Error("Failed to fetch barbers");
     }
   }
+
   static async computeSlots(
     barberId: string,
     date: string

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { BarbersController } from "../controllers/barbers.controller.ts";
+import { BarbersController } from "../controllers/barbers.controller.js";
 
 const router = Router();
 

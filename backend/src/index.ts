@@ -3,9 +3,9 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
-// import { auth } from "./middleware/auth.ts";
-import barbersRoute from "./routes/barbers.ts";
-import bookingsRoute from "./routes/bookings.ts";
+// import { auth } from "./middleware/auth.js";
+import barbersRoute from "./routes/barbers.js";
+import bookingsRoute from "./routes/bookings.js";
 
 const app = express();
 app.use(cors());

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { BookingsService } from "../services/bookings.service.ts";
-import type { Booking, BookingDTO } from "../models/Booking.ts";
+import { BookingsService } from "../services/bookings.service.js";
+import type { Booking, BookingDTO } from "../models/Booking.js";
 
 export class BookingsController {
   static async getAll(

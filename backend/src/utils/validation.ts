@@ -3,7 +3,7 @@ import {
   CLOSING_HOUR,
   HOLIDAYS,
   OPENING_HOUR,
-} from "./constants.ts";
+} from "./constants.js";
 
 export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

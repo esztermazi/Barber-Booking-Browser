@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { BarbersService } from "../services/barbers.service.ts";
-import type { Barber, BarberSlotDTO } from "../models/Barber.ts";
+import { BarbersService } from "../services/barbers.service.js";
+import type { Barber, BarberSlotDTO } from "../models/Barber.js";
 
 export class BarbersController {
   static async getAll(

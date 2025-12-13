@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { readJSON, writeJSON } from "../utils/storage.ts";
+import { readJSON, writeJSON } from "../utils/storage.js";
 import {
   isValidEmail,
   isValidTimestamp,
@@ -7,15 +7,15 @@ import {
   isWithinOpeningHours,
   isSunday,
   isHoliday,
-} from "../utils/validation.ts";
+} from "../utils/validation.js";
 import {
   BOOKINGS_PATH,
   OPENING_HOUR,
   CLOSING_HOUR,
-} from "../utils/constants.ts";
+} from "../utils/constants.js";
 
-import type { Booking, BookingDTO } from "../models/Booking.ts";
-import { BarbersService } from "./barbers.service.ts";
+import type { Booking, BookingDTO } from "../models/Booking.js";
+import { BarbersService } from "./barbers.service.js";
 
 export class BookingsService {
   static async getAll(email?: string): Promise<BookingDTO.List[]> {

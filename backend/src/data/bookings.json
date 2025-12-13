@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "id": "cb9129a6-0a75-4ced-8061-e7e2c9435dd6",
+    "barberId": "c7b3d8e0-5e0b-4b0f-8b3a-1b9d4b3c0d1e",
+    "start": 1766469600000,
+    "end": 1766471400000,
+    "email": "tst@test.com"
+  },
+  {
+    "id": "9afbfdc7-8650-4571-b66e-1088bbfc79ad",
+    "barberId": "c7b3d8e0-5e0b-4b0f-8b3a-1b9d4b3c0d1e",
+    "start": 1767378600000,
+    "end": 1767380400000,
+    "email": "est@test.com"
+  },
+  {
+    "id": "fd056783-7724-4a6a-bba5-0aa0baebb112",
+    "barberId": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+    "start": 1767117600000,
+    "end": 1767119400000,
+    "email": "tt@t.com"
+  }
+]
